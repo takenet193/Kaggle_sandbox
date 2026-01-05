@@ -33,18 +33,18 @@ Kaggleコンペ参加のための統合的な開発環境
 │
 ├── knowledge/                  # Obsidian知識ベース
 │   ├── zettelkasten/           # Zettelkasten形式のノート
+│   ├── inbox/                  # 収集（共通Inbox: タスク/アイデア/メモ）
 │   ├── tasks/                  # GTDタスク管理
-│   │   ├── inbox/              # 未整理タスク
 │   │   ├── active/             # アクティブなタスク
 │   │   ├── waiting/            # 待機中タスク
-│   │   └── completed/          # 完了タスク
-│   ├── projects/               # プロジェクトノート
-│   └── references/             # 参考資料
+│   │   ├── someday/            # いつかやるタスク
+│   │   ├── completed/          # 完了タスク
+│   │   └── archive/            # 意識から外すタスクの保管（ステータスではない）
+│   │   └── projects/           # projectハブノート（任意だが推奨）
+│   │       └── archive/        # projectハブノートの保管（ステータスではない）
 │
-├── tasks/                      # タスクJSONファイル（エージェント用）
-│   ├── pending/                # 未処理タスク
-│   ├── in_progress/            # 処理中タスク
-│   └── completed/              # 完了タスク
+├── tasks/                      # タスクJSON（エージェント用・生成物だがGit管理）
+│   └── current_sprint.json      # `knowledge/tasks/` を集約したSSOTスナップショット
 │
 ├── data/                       # データ
 │   ├── raw/                    # Kaggleからの生データ
@@ -76,10 +76,11 @@ Obsidianで知識ノートを作成（Zettelkasten形式）
 ```bash
 python src/task_converter.py
 ```
-Markdown形式のタスクをJSON形式に変換
+`knowledge/tasks/` を集約し、`tasks/current_sprint.json` を生成（上書き）します。
+（このJSONは**手編集しない**）
 
 ### 4. エージェント実行
-Plannerがタスクを読み取り、各エージェントに割り当て
+Plannerが `tasks/current_sprint.json` を読み取り、各エージェントに割り当て
 
 ### 5. 結果記録
 実験結果を知識ノートに反映
@@ -98,8 +99,8 @@ pip install -r requirements.txt
 
 ### 2. ディレクトリの作成
 ```bash
-mkdir -p knowledge/{zettelkasten,tasks/{inbox,active,waiting,completed},projects,references}
-mkdir -p tasks/{pending,in_progress,completed}
+mkdir -p knowledge/{inbox,zettelkasten,tasks/{active,waiting,someday,completed,archive,projects,projects/archive}}
+mkdir -p tasks
 mkdir -p experiments
 ```
 
@@ -115,8 +116,8 @@ mkdir -p experiments
    - タイムスタンプベースのIDで命名（例: `20240101000000_kaggle_basics.md`）
 
 2. **タスクの生成**
-   - `knowledge/tasks/inbox/` に新しいタスクを作成
-   - メタデータに `related_notes` として元のノートIDを記録
+   - `knowledge/inbox/` にタスク/アイデア/メモを追加（共通Inbox）
+   - タスクとして採用する場合は `knowledge/tasks/{active|waiting|someday}/` に **コピーしてSSOT化**し、元のInboxファイルは `knowledge/inbox/archive/` に移動
 
 3. **タスクの変換**
    ```bash
@@ -124,7 +125,7 @@ mkdir -p experiments
    ```
 
 4. **エージェント実行**
-   - Plannerが `tasks/pending/` からタスクを読み取り
+   - Plannerが `tasks/current_sprint.json` からタスクを読み取り
    - タスクを分解し、各エージェントに割り当て
 
 5. **結果の記録**
@@ -135,6 +136,7 @@ mkdir -p experiments
 
 - **プロジェクト全体アーキテクチャ**: `docs/project_architecture.md`
 - **ワークフローガイド**: `docs/workflow_guide.md`
+- **Docs Manager ルール（運用規約）**: `.cursor/docs_manager_rules.mdc`
 - **Mermaid図の表示方法**: `docs/MERMAID_VIEWING_GUIDE.md` ⭐ 図が見えない場合はこちら
 - **エージェント定義**: `.cursor/kaggle_team.mdc`
 - **実験フロー指示**: `.cursor/experiment_flow_instructions.mdc`

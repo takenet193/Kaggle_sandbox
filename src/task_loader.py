@@ -11,6 +11,14 @@ from typing import List, Dict, Optional
 from datetime import datetime
 
 
+def _load_current_sprint(tasks_dir: Path = Path("tasks")) -> Dict:
+    sprint_file = tasks_dir / "current_sprint.json"
+    if not sprint_file.exists():
+        return {"tasks": []}
+    with open(sprint_file, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def load_task(task_id: str, tasks_dir: Path = Path("tasks")) -> Optional[Dict]:
     """
     特定のタスクを読み込む
@@ -22,13 +30,10 @@ def load_task(task_id: str, tasks_dir: Path = Path("tasks")) -> Optional[Dict]:
     Returns:
         タスク情報の辞書、見つからない場合はNone
     """
-    # 各ステータスディレクトリを検索
-    for status_dir in ['pending', 'in_progress', 'completed']:
-        task_file = tasks_dir / status_dir / f"{task_id}.json"
-        if task_file.exists():
-            with open(task_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-    
+    payload = _load_current_sprint(tasks_dir)
+    for task in payload.get("tasks", []):
+        if task.get("id") == task_id:
+            return task
     return None
 
 
@@ -42,21 +47,8 @@ def load_pending_tasks(tasks_dir: Path = Path("tasks")) -> List[Dict]:
     Returns:
         未処理タスクのリスト
     """
-    pending_dir = tasks_dir / "pending"
-    if not pending_dir.exists():
-        return []
-    
-    tasks = []
-    for task_file in pending_dir.glob("*.json"):
-        with open(task_file, 'r', encoding='utf-8') as f:
-            tasks.append(json.load(f))
-    
-    # 優先順位と期限でソート
-    tasks.sort(key=lambda x: (
-        {'high': 0, 'medium': 1, 'low': 2}.get(x.get('priority', 'medium'), 1),
-        x.get('due_date', '9999-12-31')
-    ))
-    
+    payload = _load_current_sprint(tasks_dir)
+    tasks = [t for t in payload.get("tasks", []) if t.get("status") == "pending"]
     return tasks
 
 
@@ -70,15 +62,8 @@ def load_active_tasks(tasks_dir: Path = Path("tasks")) -> List[Dict]:
     Returns:
         進行中タスクのリスト
     """
-    in_progress_dir = tasks_dir / "in_progress"
-    if not in_progress_dir.exists():
-        return []
-    
-    tasks = []
-    for task_file in in_progress_dir.glob("*.json"):
-        with open(task_file, 'r', encoding='utf-8') as f:
-            tasks.append(json.load(f))
-    
+    payload = _load_current_sprint(tasks_dir)
+    tasks = [t for t in payload.get("tasks", []) if t.get("status") == "in_progress"]
     return tasks
 
 
@@ -93,20 +78,8 @@ def load_tasks_by_project(project: str, tasks_dir: Path = Path("tasks")) -> List
     Returns:
         プロジェクトのタスクリスト
     """
-    all_tasks = []
-    
-    for status_dir in ['pending', 'in_progress', 'completed']:
-        status_path = tasks_dir / status_dir
-        if not status_path.exists():
-            continue
-            
-        for task_file in status_path.glob("*.json"):
-            with open(task_file, 'r', encoding='utf-8') as f:
-                task = json.load(f)
-                if task.get('project') == project:
-                    all_tasks.append(task)
-    
-    return all_tasks
+    payload = _load_current_sprint(tasks_dir)
+    return [t for t in payload.get("tasks", []) if t.get("project") == project]
 
 
 def load_tasks_index(tasks_dir: Path = Path("tasks")) -> Optional[Dict]:
@@ -119,11 +92,10 @@ def load_tasks_index(tasks_dir: Path = Path("tasks")) -> Optional[Dict]:
     Returns:
         インデックス情報の辞書
     """
-    index_file = tasks_dir / "tasks_index.json"
-    if not index_file.exists():
+    sprint_file = tasks_dir / "current_sprint.json"
+    if not sprint_file.exists():
         return None
-    
-    with open(index_file, 'r', encoding='utf-8') as f:
+    with open(sprint_file, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -143,6 +115,7 @@ def format_task_for_planner(task: Dict) -> str:
         f"ステータス: {task['status']}",
         f"優先度: {task['priority']}",
         f"プロジェクト: {task['project']}",
+        f"モード: {task.get('mode', '')}",
         "",
         f"## 説明",
         task.get('description', '')[:500],
@@ -161,6 +134,13 @@ def format_task_for_planner(task: Dict) -> str:
         else:
             lines.append(str(outcome))
     
+    if task.get('context'):
+        lines.extend([
+            "",
+            "## コンテクスト（参照ノート）",
+            ", ".join([str(x) for x in task.get("context", [])]),
+        ])
+
     if task.get('related_notes'):
         lines.extend([
             "",

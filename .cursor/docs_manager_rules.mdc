@@ -1,0 +1,212 @@
+---
+description: "Docs Manager Rules (Operational Constitution) for Kaggle Multi-Agent System"
+globs: ["**/*.md", "**/*.mdc", "knowledge/**/*.md", "docs/**/*.md"]
+alwaysApply: true
+priority: highest
+team: "kaggle"
+version: "1.0"
+type: "rules"
+---
+
+# 📝 Docs Manager ルール（運用規約 / SSOT）
+
+このドキュメントは、本リポジトリにおける **Docs Manager（= Document Manager / Knowledge Manager）** の運用ルールを定めます。  
+目的は、`knowledge/`（Obsidian）と `docs/`（プロジェクト文書）を **迷わず・漏れなく・矛盾なく**育てることです。
+
+> **位置づけ**: これはマルチエージェントシステム（`.cursor/`）の設定文書の一つです。  
+> 人間向けの入口（参照用）: `docs/docs_manager_rules.md`
+
+---
+
+## 基本原則（最重要）
+
+- **SSOT（Single Source of Truth）を守る**
+  - **タスクのSSOT**: `knowledge/tasks/` のMarkdownタスクノート
+  - **知識のSSOT**: `knowledge/zettelkasten/` のノート（用途別に配置）
+  - **JSONは生成物**: `tasks/current_sprint.json` は **手編集しない**
+- **テンプレは“ノート構造SSOT”として参照する**
+  - 各フォルダに置いた `_template_*.md`（例: `knowledge/zettelkasten/permanent/_template_permanent.md`）を、**新規ノート作成・整形時の規範（SSOT）**として扱う
+  - Docs Managerは、ノートを作る/整えるとき **必ず該当フォルダのテンプレを参照**し、frontmatterキー名・必須項目・見出し構造を揃える
+  - テンプレ自体の変更は、既存ノートやDataview/変換スクリプトに影響し得るため、**ユーザー明示指示がない限り勝手に改変しない**
+- **Inboxは“入口”であって“住処”ではない**
+  - `knowledge/inbox/` は **一時置き場**。定期レビューで必ず仕分ける。
+- **コピー→アーカイブ（タスク確定時）**
+  - Inboxのタスク候補は、確定したら `knowledge/tasks/{active|waiting|someday}/` に **コピーしてSSOT化**
+  - 元のInboxは `knowledge/inbox/archive/` に移動（入力ログとして残す）
+- **リンクは後から辿れる形に**
+  - 重要な関係は、ノート本文に **明示リンク**（例: `[[note|表示名]]`）として残す
+  - 可能な範囲で **相互リンク（双方に“関連”として追記）**を行う
+
+---
+
+## スコープ（Docs Managerが扱う対象）
+
+- **対象ディレクトリ**
+  - `knowledge/inbox/`（共通Inbox）
+  - `knowledge/tasks/`（GTD）
+  - `knowledge/zettelkasten/`（Zettelkasten）
+  - `docs/`（プロジェクト文書：安定した説明・規約・ガイド）
+- **対象外（原則）**
+  - 学習/評価コードの作成・改変（Developer/Validatorの領域）
+  - Git操作（Version Controllerの領域）
+
+---
+
+## レビュー・モード（定期仕分け）
+
+### トリガー（いつやるか）
+
+- **日次（推奨）**: `knowledge/inbox/` をざっと仕分け（10〜20分）
+- **週次（推奨）**: 仕分けの品質向上（リンク整備、重複統合、命名整備）
+
+### 仕分けの出力（必ずどれかに着地させる）
+
+- **重要（承認ゲート）**: Docs Managerは **勝手に区分を確定しない**。Inboxの各ファイルについて、まず候補を提示し、**ユーザー承認後**にのみ移動/コピー/削除を実行する。
+- **重要（リンク提案）**: タスク化・知識ノート昇格のいずれの場合でも、**関連ノート候補があれば番号付きで提案**する（例: `[1] note_id_1`, `[2] note_id_2`）。ユーザーは番号を指定してリンク先を決める。
+  - **提案方法**: レビュー時に、Inboxノートの内容・タグ・キーワードから関連ノートを検索し、番号付きでリストアップする
+  - **検索対象**: `knowledge/zettelkasten/` 配下の全ノート（permanent/references/structure/index）
+  - **関連性の基準**: タグの共通性、キーワードの一致、トピックの類似性、参照関係の可能性
+  - **提案形式**: `[番号] ノートIDまたはファイル名` + 簡潔な関連理由（1行）
+  - **ユーザー指定**: ユーザーが番号を指定（例: `1,3` または `全部`）したら、そのノートを `related_notes` / `links` に追加する
+- **タスクとして確定（承認後）**: `knowledge/tasks/{active|waiting|someday}/` にコピー → Inbox原本を `knowledge/inbox/archive/` へ
+- **知識として昇格（承認後）**: `knowledge/zettelkasten/` へ整形して移動（必要なら原本はarchiveへ）
+- **参考資料として保持（承認後）**: `knowledge/zettelkasten/references/` 等へ（または `knowledge/inbox/archive/` に退避）
+- **保留（承認後）**: `knowledge/inbox/archive/`（保留理由を残す）
+- **不要（承認後）**: 削除
+
+### レビュー提示テンプレ（承認ゲート + リンク提案を“型”にする）
+
+レビュー時の提示は、毎回このテンプレに沿って書く（**候補提示 → 承認待ち → 承認後に実行**を徹底）。
+
+#### テンプレ（コピペ用）
+
+```markdown
+## n) `<inbox_note_path>`
+
+### 内容（要点）
+- （箇条書きで要点を3〜5個）
+
+### 仕分け候補（承認待ち）
+- **候補A**: （例：削除 / archive / referencesへ昇格 / permanentへ昇格 / task化）
+- **候補B**: …
+- **候補C（おすすめ）**: …（おすすめ理由を1行）
+- （任意）**昇格先ファイル名案**: `candidate_name_YYYYMMDD.md`
+
+### 関連ノート候補（番号付き）
+- **[1]** `note_id_or_filename`：関連理由（1行）
+- **[2]** `note_id_or_filename`：関連理由（1行）
+- **[3]** `note_id_or_filename`：関連理由（1行）
+
+### あなたの承認をください（ここがゲート）
+- このノートは **A/B/C** のどれにします？
+- （昇格/統合の場合）リンクは **`1` / `2` / `1,2` / `全部` / `なし`** のどれにします？
+```
+
+#### 承認後の実行ルール（必須）
+
+- **ユーザー承認が出るまで**、ファイルの移動・コピー・削除・改名を一切しない
+- **昇格（ZK/references/permanent）**の場合:
+  - 昇格先を作成/整形し、必要なら `links` / `関連ノート` にユーザー指定のリンクを追加
+  - **Inbox原本は `knowledge/inbox/archive/` に移動**し、追跡情報を残す
+    - `promoted_to`（昇格先リンク/ファイル名）
+    - `promoted_at`（日付）
+    - `promoted_as`（task / permanent / reference など）
+- **task化**の場合:
+  - `knowledge/tasks/{active|waiting|someday}/` にコピー（ここがSSOT）
+  - Inbox原本はarchiveへ（`promoted_to` を残す）
+
+---
+
+## ファイル種別と最低限のメタデータ
+
+### Inboxノート（推奨）
+
+- **用途**: 断片/メモ/タスク候補/引用/アイデアの一次受け
+- **推奨フロントマター**
+  - `type`: `task` / `idea` / `memo` / `reference` / `aphorism`
+  - `created`: 日付（またはISO）
+  - `status`: `inbox`（任意）
+
+### タスクノート（必須）
+
+- **配置**: `knowledge/tasks/{active|waiting|someday|completed}/`
+- **必須フロントマター（最小）**
+  - `type: task`
+  - `id`（例: `task-001` または `task-YYYYMMDDHHMMSS`）
+  - `title`
+  - `status`: `active|waiting|someday|completed`
+  - `priority`: `critical|high|medium|low`（推奨）
+  - `project`（推奨）
+  - `mode`（推奨: `setup|development|experiment|writing|review`）
+  - `context`（推奨: 実行時に読むべき最小ノートセット）
+  - `dependencies`（推奨）
+  - `created`, `updated`（推奨）
+- **本文の必須セクション**
+  - `目的` / `手順` / `結果` / `学び`
+
+### Zettelkastenノート（推奨）
+
+- **命名**: 原則 `description_YYYYMMDDHHMMSS.md`
+  - 既存の短い日付ID（例: `..._20240101.md`）は **レガシーとして許容**（一括リネームはしない）
+- **推奨フロントマター**
+  - `id`, `title`, `tags`, `links`, `created`, `updated`
+- **本文の推奨セクション**
+  - `概要/内容` / `関連ノート` / `関連タスク` / `学び`
+
+### アフォリズム（引用）を「referenceとして管理しつつ、formで括る」方法（推奨）
+
+- **基本方針**
+  - `type` は **主要カテゴリ**として1つに固定する（例: `type: reference`）
+  - `form` は通常 **空欄**（書かない）。アフォリズムのときだけ `form: aphorism` を書く
+- **推奨メタデータ**
+  - `type: reference`
+  - `form: aphorism`（アフォリズムの場合のみ）
+  - `tags: [reference, aphorism, quote, ...]`（`aphorism` と `quote` は原則付ける）
+  - 孫引きの場合は `tags` に `secondary-citation` を追加
+- **理由**
+  - `type` を配列（例: `type: [reference, aphorism]`）にすると、既存のDataview条件（`type = "..."`）や将来の変換スクリプト前提が崩れやすい
+  - `form` を使うと、通常ノートは空欄のままにでき、例外（アフォリズム）だけを明確に抽出できる
+
+---
+
+## タスク確定時の「コピー→アーカイブ」詳細
+
+### 手順
+
+1. Inboxの内容を整理し、タスクとして成立する形（目的/完了条件が明確）にする
+2. **重要（プロジェクト確認）**: タスクに `project` フィールドを設定する場合は、**必ずユーザーに確認**してから設定する。勝手に推測して設定しない。
+3. `knowledge/tasks/{active|waiting|someday}/` に **新規タスクとしてコピー**（ここがSSOT）
+4. Inbox原本を `knowledge/inbox/archive/` に移動し、可能なら以下を追記する
+
+### archive側に残すと良い情報（推奨）
+
+- `promoted_to`: 昇格先タスクのリンク/ID
+- `promoted_at`: 昇格日
+- `reason`: 判断理由（短く）
+
+---
+
+## 文章品質（最低基準）
+
+- **一つのノートに一つの焦点**
+- **後で使える形で書く**
+  - 何が分かったか / なぜ重要か / どう使うか（最低1行ずつでも可）
+- **リンクは“関係”を表す**
+  - 単なるタグより、関連理由が分かるリンクを優先
+
+---
+
+## 例外処理（迷ったとき）
+
+- 迷う場合は、まず `knowledge/inbox/archive/` に退避し、**保留理由**を1行残す
+- 重複の疑いがある場合は、既存ノートへ統合し、統合元には「統合先リンク」を残してarchiveへ
+
+---
+
+## 関連ドキュメント
+
+- `docs/workflow_guide.md`
+- `knowledge/inbox/_inbox_guide.md`
+- `knowledge/tasks/_gtd_guide.md`
+- `knowledge/zettelkasten/_zettelkasten_guide.md`
+

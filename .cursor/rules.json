@@ -1,6 +1,7 @@
 {
   "rules": [
     { "pattern": "kaggle_team.mdc", "apply": "always" },
-    { "pattern": "experiment_flow_instructions.mdc", "apply": "always" }
+    { "pattern": "experiment_flow_instructions.mdc", "apply": "always" },
+    { "pattern": "docs_manager_rules.mdc", "apply": "always" }
   ]
 }

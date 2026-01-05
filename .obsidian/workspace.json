@@ -1,0 +1,228 @@
+{
+  "main": {
+    "id": "c02646f845932251",
+    "type": "split",
+    "children": [
+      {
+        "id": "fe6b50c269735993",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ec552ee9f7724cee",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "knowledge/zettelkasten/permanent/context_engineering_human_role_ssot_20260104183000.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "context_engineering_human_role_ssot_20260104183000"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "eb59e7cb5e224b85",
+    "type": "split",
+    "children": [
+      {
+        "id": "5b171d9e1bc9d646",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b91babb90d5e250d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "ファイルエクスプローラ"
+            }
+          },
+          {
+            "id": "684b3c766a1aed6d",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:#zettelkasten",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "検索"
+            }
+          },
+          {
+            "id": "8069d09803aaace4",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "ブックマーク"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "285deb46a5ccc1c0",
+    "type": "split",
+    "children": [
+      {
+        "id": "1b9a0eaebdbec6c9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "14f1b73ecf76e961",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/project_architecture.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "project_architectureへのバックリンク"
+            }
+          },
+          {
+            "id": "bc15845e71798160",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/project_architecture.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "project_architectureからのアウトゴーイングリンク"
+            }
+          },
+          {
+            "id": "e951aff5766c0e67",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "タグ"
+            }
+          },
+          {
+            "id": "9afc27d1b4f65af8",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "すべてのプロパティ"
+            }
+          },
+          {
+            "id": "5b30667e52e2f1b8",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/project_architecture.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "project_architectureのアウトライン"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:クイックスイッチャーを開く": false,
+      "graph:グラフビューを開く": false,
+      "canvas:新規キャンバスを作成": true,
+      "daily-notes:今日のデイリーノートを開く": false,
+      "templates:テンプレートを挿入": false,
+      "command-palette:コマンドパレットを開く": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "ec552ee9f7724cee",
+  "lastOpenFiles": [
+    "knowledge/zettelkasten/index/_template_index.md",
+    "knowledge/zettelkasten/structure/_template_structure.md",
+    "knowledge/zettelkasten/references/_template_reference.md",
+    "knowledge/zettelkasten/permanent/_template_permanent.md",
+    "knowledge/tasks/projects/_template_project.md",
+    "knowledge/tasks/completed/_template_task_completed.md",
+    "knowledge/tasks/someday/_template_task_someday.md",
+    "knowledge/tasks/waiting/_template_task_waiting.md",
+    "knowledge/tasks/active/_template_task_active.md",
+    "knowledge/inbox/archive/_template_archive_log.md",
+    "knowledge/inbox/_template_task_candidate.md",
+    "knowledge/inbox/_template_aphorism.md",
+    "knowledge/inbox/_template_reference.md",
+    "knowledge/inbox/_template_memo.md",
+    "knowledge/inbox/_template_idea.md",
+    "knowledge/inbox/archive/dummy_idea_automation_20260105000110.md",
+    "knowledge/zettelkasten/permanent/automation_watchdog_vs_manual_20260105.md",
+    "knowledge/tasks/_MASTER_TASKS.md",
+    "knowledge/inbox/archive/dummy_memo_learning_20260105000120.md",
+    "knowledge/zettelkasten/permanent/xgboost_early_stopping_feature_importance_20260105.md",
+    "knowledge/zettelkasten/references/note_quality_network_links_20260104235020.md",
+    "knowledge/zettelkasten/permanent/context_engineering_human_role_ssot_20260104183000.md",
+    "knowledge/zettelkasten/references/lichtenberg_notebooks_20251228.md",
+    "knowledge/tasks/active/task_001_git_setup_20251228.md",
+    "knowledge/inbox/archive/dummy_reference_paper_20260105000130.md",
+    "knowledge/zettelkasten/references/reference_form_test_paper_20260105000130.md",
+    "src/review_mode.py",
+    "plan-template/docs/tasks",
+    "plan-template/docs/reports",
+    "plan-template/docs",
+    "plan-template",
+    "src/sync_project_links.py",
+    "knowledge/tasks/projects/archive",
+    "knowledge/tasks/projects",
+    "tasks/current_sprint.json",
+    "tasks",
+    "無題のファイル.canvas",
+    "無題のファイル 1.canvas"
+  ]
+}

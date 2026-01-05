@@ -332,8 +332,9 @@ feat(experiment): カテゴリカル変数の特徴量エンジニアリング�
 ## 📚 参考情報
 
 ### 関連ドキュメント
-- **基本ルール**: `.cursor/rules/kaggle_team.mdc`
-- **人間用ドキュメント**: `docs/experiment_workflow.mdc`
+- **基本ルール（チーム憲法）**: `.cursor/kaggle_team.mdc`
+- **Docs Manager ルール（運用規約 / SSOT）**: `.cursor/docs_manager_rules.mdc`
+- **Docs Manager ルール（人間向け入口）**: `docs/docs_manager_rules.md`
 
 ### 実験管理
 - **命名規則**: `experiment{N}_{description}`

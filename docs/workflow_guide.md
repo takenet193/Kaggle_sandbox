@@ -47,8 +47,10 @@ updated: 2024-01-15
 ### タスクの作成
 
 1. 知識ノートから実装可能なタスクを特定
-2. `knowledge/tasks/inbox/` に新しいタスクファイルを作成
-3. タスクのメタデータに `related_notes` として元のノートIDを記録
+2. `knowledge/inbox/` にタスク/アイデア/メモを追加（共通Inbox）
+3. タスクとして採用する場合は `knowledge/tasks/{active|waiting|someday}/` に **コピーしてSSOT化**し、元のInboxファイルは `knowledge/inbox/archive/` に移動（入力ログとして保持）。必要に応じてメタデータに `related_notes` を記録
+
+> 運用ルールの詳細（レビュー・モード、SSOT、コピー→アーカイブ等）は `.cursor/docs_manager_rules.mdc` を参照してください。
 
 ### タスクの例
 
@@ -191,7 +193,7 @@ Planner → Developer → Validator → Docs Manager → Version Controller
 
 1. **知識収集**: Kaggleのディスカッションから新しい手法を発見
 2. **ノート作成**: `knowledge/zettelkasten/20240115000000_polynomial_features.md` を作成
-3. **タスク生成**: `knowledge/tasks/inbox/task-002.md` を作成
+3. **タスク生成**: `knowledge/inbox/` にメモとして追加 → タスク化して `knowledge/tasks/active/` 等へ移動
 4. **タスク変換**: `python src/task_converter.py` を実行
 5. **エージェント実行**: Plannerがタスクを読み取り、実装を開始
 6. **結果記録**: 実験結果を記録し、知識ノートを更新

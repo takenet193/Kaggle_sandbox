@@ -1,0 +1,155 @@
+{
+  "generated_at": "2026-01-05T11:12:28",
+  "tasks": [
+    {
+      "assigned_agent": "developer",
+      "assignee": null,
+      "context": [],
+      "dependencies": [],
+      "due_date": "2025-12-30",
+      "id": "task-001",
+      "mode": "setup",
+      "priority": "high",
+      "project": "infrastructure",
+      "related_notes": [],
+      "source_file": "knowledge/tasks/active/task_001_git_setup_20251228.md",
+      "status": "in_progress",
+      "tags": [
+        "git",
+        "setup",
+        "infrastructure"
+      ],
+      "title": "Git初期設定とブランチ戦略策定",
+      "type": "task",
+      "updated_at": "2026-01-05T00:00:00"
+    },
+    {
+      "assigned_agent": "planner",
+      "assignee": null,
+      "context": [
+        "kaggle_basics_20240101",
+        "model_selection_20240103"
+      ],
+      "dependencies": [
+        "task-001",
+        "task-002"
+      ],
+      "due_date": null,
+      "id": "task-003",
+      "mode": "experiment",
+      "priority": "medium",
+      "project": "kaggle",
+      "related_notes": [],
+      "source_file": "knowledge/tasks/someday/task_003_baseline_model_20251228.md",
+      "status": "someday",
+      "tags": [
+        "kaggle",
+        "model",
+        "baseline",
+        "xgboost"
+      ],
+      "title": "ベースラインモデルの構築",
+      "type": "task",
+      "updated_at": "2025-12-28T00:00:00"
+    },
+    {
+      "assigned_agent": null,
+      "assignee": null,
+      "context": [
+        "gtd_implementation_plan_20260101",
+        "obsidian_gtd_dataview_20251228"
+      ],
+      "dependencies": [],
+      "due_date": null,
+      "id": "task-20260104170000",
+      "mode": "review",
+      "priority": "medium",
+      "project": "gtd_next",
+      "related_notes": [],
+      "source_file": "knowledge/tasks/someday/task_gtd_next_master_note_name_20260104170000.md",
+      "status": "someday",
+      "tags": [
+        "gtd",
+        "obsidian",
+        "dataview"
+      ],
+      "title": "マスターノートのファイル名/配置を確定する",
+      "type": "task",
+      "updated_at": "2026-01-05T00:00:00"
+    },
+    {
+      "assigned_agent": null,
+      "assignee": null,
+      "context": [
+        "gtd_implementation_plan_20260101",
+        "obsidian_gtd_dataview_20251228",
+        "obsidian_dataview_cursor_dynamic_context_20260102"
+      ],
+      "dependencies": [],
+      "due_date": null,
+      "id": "task-20260104171000",
+      "mode": "writing",
+      "priority": "medium",
+      "project": "gtd_next",
+      "related_notes": [],
+      "source_file": "knowledge/tasks/someday/task_gtd_next_dataview_query_polish_20260104171000.md",
+      "status": "someday",
+      "tags": [
+        "gtd",
+        "obsidian",
+        "dataview"
+      ],
+      "title": "Dataviewクエリ詳細（表示項目/並び順）を確定する",
+      "type": "task",
+      "updated_at": "2026-01-04T00:00:00"
+    },
+    {
+      "assigned_agent": "developer",
+      "assignee": null,
+      "context": [],
+      "dependencies": [],
+      "due_date": "2026-01-05",
+      "id": "task-002",
+      "mode": "development",
+      "priority": "high",
+      "project": "infrastructure",
+      "related_notes": [],
+      "source_file": "knowledge/tasks/completed/task_002_task_converter_20251228.md",
+      "status": "completed",
+      "tags": [
+        "python",
+        "automation",
+        "gtd"
+      ],
+      "title": "task_converter.py の実装",
+      "type": "task",
+      "updated_at": "2026-01-04T00:00:00"
+    },
+    {
+      "assigned_agent": null,
+      "assignee": null,
+      "context": [
+        "gtd_implementation_plan_20260101",
+        "obsidian_gtd_dataview_20251228"
+      ],
+      "dependencies": [],
+      "due_date": null,
+      "id": "task-20260104170000",
+      "mode": "review",
+      "priority": "medium",
+      "project": "gtd_next",
+      "related_notes": [],
+      "source_file": "knowledge/tasks/completed/task_gtd_next_master_note_name_20260104170000.md",
+      "status": "completed",
+      "tags": [
+        "gtd",
+        "obsidian",
+        "dataview"
+      ],
+      "title": "マスターノートのファイル名/配置を確定する",
+      "type": "task",
+      "updated_at": "2026-01-05T00:00:00"
+    }
+  ],
+  "total_tasks": 6
+}

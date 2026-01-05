@@ -8,26 +8,92 @@ Zettelkasten + GTD形式のタスクをマルチエージェントシステム�
 import json
 import re
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Optional
-import frontmatter
+from datetime import date, datetime, time
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+import yaml
 
 
-def parse_task_markdown(file_path: Path) -> Dict:
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+# Human-facing folder status -> AI-facing JSON status vocabulary
+STATUS_DIR_TO_JSON_STATUS: Dict[str, str] = {
+    "active": "in_progress",
+    "waiting": "waiting",
+    "someday": "someday",
+    "completed": "completed",
+}
+
+STATUS_SORT_ORDER: Dict[str, int] = {
+    "in_progress": 0,
+    "waiting": 1,
+    "someday": 2,
+    "completed": 3,
+}
+
+PRIORITY_RANK: Dict[str, int] = {
+    "critical": 0,
+    "high": 1,
+    "medium": 2,
+    "low": 3,
+}
+
+
+def _normalize_list(value: Any) -> List[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def _to_iso_date(value: Any) -> Optional[str]:
+    """
+    due_date / completed_date などが date/datetime/str で来てもISO文字列に揃える。
+    - date -> YYYY-MM-DD
+    - datetime -> YYYY-MM-DDTHH:MM:SS
+    - str -> そのまま（ISOっぽい前提）
+    """
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.replace(microsecond=0).isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, str):
+        return value.strip() or None
+    return str(value)
+
+
+def _to_datetime(value: Any, fallback: datetime) -> datetime:
+    if value is None:
+        return fallback
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, date):
+        return datetime.combine(value, time.min)
+    if isinstance(value, str):
+        try:
+            # datetime.fromisoformat can parse YYYY-MM-DD and YYYY-MM-DDTHH:MM:SS
+            parsed = datetime.fromisoformat(value)
+            if isinstance(parsed, datetime):
+                return parsed
+        except ValueError:
+            return fallback
+    return fallback
+
+
+def parse_task_markdown(file_path: Path, json_status: str) -> Dict[str, Any]:
     """
     Markdownファイルからタスク情報を抽出
     
     Args:
         file_path: タスクのMarkdownファイルパス
+        json_status: AI向けJSONのstatus（pending|in_progress|waiting|someday|completed）
         
     Returns:
         タスク情報の辞書
     """
-    with open(file_path, 'r', encoding='utf-8') as f:
-        post = frontmatter.load(f)
-    
-    metadata = post.metadata
-    content = post.content
+    metadata, content = _load_markdown_with_frontmatter(file_path)
     
     # タスクIDを生成（ファイル名から、またはメタデータから）
     task_id = metadata.get('id', file_path.stem)
@@ -38,163 +104,160 @@ def parse_task_markdown(file_path: Path) -> Dict:
         title_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
         if title_match:
             title = title_match.group(1)
-    
-    # ステータスを判定（ファイルの場所から）
-    status = 'pending'
-    if 'active' in str(file_path):
-        status = 'active'
-    elif 'waiting' in str(file_path):
-        status = 'waiting'
-    elif 'completed' in str(file_path):
-        status = 'completed'
-    elif 'inbox' in str(file_path):
-        status = 'pending'
+    if not title:
+        title = task_id
     
     # メタデータから情報を取得
+    task_type = metadata.get("type", "task")
     priority = metadata.get('priority', 'medium')
-    project = metadata.get('project', 'general')
-    context = metadata.get('context', 'general')
-    due_date = metadata.get('due_date', None)
-    tags = metadata.get('tags', [])
-    related_notes = metadata.get('related_notes', [])
-    assigned_agent = metadata.get('assigned_agent', 'planner')
-    dependencies = metadata.get('dependencies', [])
-    
-    # 期待される成果を抽出
-    expected_outcome = metadata.get('expected_outcome', {})
-    
-    # タスクJSONを構築
-    task_json = {
+    project = metadata.get('project', None)
+    mode = metadata.get('mode', None)
+    context_notes = _normalize_list(metadata.get('context', []))
+    due_date = _to_iso_date(metadata.get('due_date', None))
+    tags = _normalize_list(metadata.get('tags', []))
+    related_notes = _normalize_list(metadata.get('related_notes', []))
+    dependencies = _normalize_list(metadata.get('dependencies', []))
+    assignee = metadata.get('assignee', None)
+    assigned_agent = metadata.get('assigned_agent', None)
+
+    # updated_at: frontmatter優先。無ければmtime。
+    mtime_dt = datetime.fromtimestamp(file_path.stat().st_mtime)
+    updated_raw = metadata.get('updated', None)
+    updated_dt = _to_datetime(updated_raw, fallback=mtime_dt)
+    updated_at = updated_dt.replace(microsecond=0).isoformat()
+
+    task_json: Dict[str, Any] = {
+        "type": task_type,
         "id": task_id,
         "title": title,
-        "description": content[:500] if content else "",  # 最初の500文字
-        "status": status,
+        "status": json_status,
         "priority": priority,
         "project": project,
-        "context": context,
+        "mode": mode,
+        "context": [c for c in context_notes if c],
         "due_date": due_date,
-        "tags": tags if isinstance(tags, list) else [tags] if tags else [],
-        "related_notes": related_notes if isinstance(related_notes, list) else [related_notes] if related_notes else [],
+        "tags": [t for t in tags if t],
+        "related_notes": [n for n in related_notes if n],
+        "dependencies": [d for d in dependencies if d],
+        "assignee": assignee,
         "assigned_agent": assigned_agent,
-        "dependencies": dependencies if isinstance(dependencies, list) else [dependencies] if dependencies else [],
-        "metadata": {
-            "created": metadata.get('created', datetime.now().isoformat()),
-            "updated": metadata.get('updated', datetime.now().isoformat()),
-            "source": str(file_path.relative_to(Path.cwd()))
-        },
-        "expected_outcome": expected_outcome
+        "source_file": str(file_path.relative_to(REPO_ROOT)),
+        "updated_at": updated_at,
     }
     
     return task_json
 
 
-def convert_tasks_to_json(
-    knowledge_dir: Path = Path("knowledge/tasks"),
-    output_dir: Path = Path("tasks"),
-    status_filter: Optional[str] = None
-) -> List[Dict]:
+def _load_markdown_with_frontmatter(file_path: Path) -> Tuple[Dict[str, Any], str]:
     """
-    知識ベースのタスクをJSON形式に変換
+    Obsidian互換のYAML frontmatter（--- ... ---）を最低限パースする。
+    依存を減らすため `python-frontmatter` は使わない。
+    """
+    text = file_path.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return {}, text
+
+    # Find the second '---' delimiter
+    lines = text.splitlines(True)  # keepends
+    if not lines or not lines[0].strip() == "---":
+        return {}, text
+
+    yaml_lines: List[str] = []
+    i = 1
+    while i < len(lines):
+        if lines[i].strip() == "---":
+            # content starts after this line
+            content = "".join(lines[i + 1 :])
+            raw_yaml = "".join(yaml_lines)
+            try:
+                meta = yaml.safe_load(raw_yaml) or {}
+                if not isinstance(meta, dict):
+                    meta = {}
+            except Exception:
+                meta = {}
+            return meta, content
+        yaml_lines.append(lines[i])
+        i += 1
+
+    # No closing delimiter -> treat as normal markdown
+    return {}, text
+
+
+def _iter_task_files(status_dir: Path) -> Iterable[Path]:
+    for md_file in status_dir.glob("**/*.md"):
+        if md_file.name.startswith("_"):
+            continue
+        yield md_file
+
+
+def _task_sort_key(task: Dict[str, Any]) -> Tuple:
+    status = task.get("status") or "someday"
+    status_order = STATUS_SORT_ORDER.get(status, 99)
+
+    deps = task.get("dependencies") or []
+    blocked_rank = 0 if (status != "completed" and len(deps) > 0) else 1
+
+    priority = (task.get("priority") or "medium").lower()
+    pr_rank = PRIORITY_RANK.get(priority, 9)
+
+    due_date = task.get("due_date")
+    due_missing = 1 if not due_date else 0
+    due_value = due_date or "9999-12-31"
+
+    updated_at = task.get("updated_at")
+    updated_dt = _to_datetime(updated_at, fallback=datetime(1970, 1, 1))
+    updated_ts = updated_dt.timestamp()
+
+    task_id = task.get("id") or ""
+
+    # blocked first -> priority -> due_date asc (missing last) -> updated desc -> id
+    return (status_order, blocked_rank, pr_rank, due_missing, due_value, -updated_ts, task_id)
+
+
+def convert_tasks_to_current_sprint_json(
+    knowledge_tasks_dir: Path = REPO_ROOT / "knowledge" / "tasks",
+    output_file: Path = REPO_ROOT / "tasks" / "current_sprint.json",
+) -> List[Dict[str, Any]]:
+    """
+    `knowledge/tasks/{active,waiting,someday,completed}/` を走査して `tasks/current_sprint.json` を生成する
     
     Args:
-        knowledge_dir: タスクのMarkdownファイルがあるディレクトリ
-        output_dir: JSONファイルの出力先
-        status_filter: 特定のステータスのみを変換（'pending', 'active', 'waiting', 'completed'）
+        knowledge_tasks_dir: タスクのMarkdownファイルがあるディレクトリ
+        output_file: 生成するJSONファイルパス
         
     Returns:
         変換されたタスクのリスト
     """
-    tasks = []
-    
-    # 各ステータスディレクトリを探索
-    status_dirs = {
-        'pending': knowledge_dir / 'inbox',
-        'active': knowledge_dir / 'active',
-        'waiting': knowledge_dir / 'waiting',
-        'completed': knowledge_dir / 'completed'
-    }
-    
-    for status, status_dir in status_dirs.items():
-        if status_filter and status != status_filter:
-            continue
-            
+    tasks: List[Dict[str, Any]] = []
+
+    for status_dir_name, json_status in STATUS_DIR_TO_JSON_STATUS.items():
+        status_dir = knowledge_tasks_dir / status_dir_name
         if not status_dir.exists():
             continue
-            
-        # Markdownファイルを検索
-        for md_file in status_dir.glob("*.md"):
+
+        for md_file in _iter_task_files(status_dir):
             try:
-                task_json = parse_task_markdown(md_file)
+                task_json = parse_task_markdown(md_file, json_status=json_status)
                 tasks.append(task_json)
-                
-                # JSONファイルとして保存
-                output_file = output_dir / status / f"{task_json['id']}.json"
-                output_file.parent.mkdir(parents=True, exist_ok=True)
-                
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    json.dump(task_json, f, ensure_ascii=False, indent=2)
-                    
             except Exception as e:
                 print(f"Error processing {md_file}: {e}")
-    
-    # 全タスクのインデックスファイルを作成
-    index_file = output_dir / "tasks_index.json"
-    with open(index_file, 'w', encoding='utf-8') as f:
-        json.dump({
-            "generated_at": datetime.now().isoformat(),
-            "total_tasks": len(tasks),
-            "tasks": tasks
-        }, f, ensure_ascii=False, indent=2)
-    
+
+    tasks.sort(key=_task_sort_key)
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "generated_at": datetime.now().replace(microsecond=0).isoformat(),
+        "total_tasks": len(tasks),
+        "tasks": tasks,
+    }
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2, sort_keys=True)
+        f.write("\n")
+
     return tasks
 
 
-def update_task_status(
-    task_id: str,
-    new_status: str,
-    tasks_dir: Path = Path("tasks")
-) -> bool:
-    """
-    タスクのステータスを更新
-    
-    Args:
-        task_id: タスクID
-        new_status: 新しいステータス
-        tasks_dir: タスクJSONファイルのディレクトリ
-        
-    Returns:
-        更新が成功したかどうか
-    """
-    # 既存のタスクを検索
-    for status_dir in ['pending', 'in_progress', 'completed']:
-        task_file = tasks_dir / status_dir / f"{task_id}.json"
-        if task_file.exists():
-            with open(task_file, 'r', encoding='utf-8') as f:
-                task = json.load(f)
-            
-            # ステータスを更新
-            task['status'] = new_status
-            task['metadata']['updated'] = datetime.now().isoformat()
-            
-            # 新しい場所に移動
-            new_status_dir = 'pending' if new_status == 'pending' else 'in_progress' if new_status == 'active' else 'completed'
-            new_task_file = tasks_dir / new_status_dir / f"{task_id}.json"
-            new_task_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(new_task_file, 'w', encoding='utf-8') as f:
-                json.dump(task, f, ensure_ascii=False, indent=2)
-            
-            # 古いファイルを削除
-            if task_file != new_task_file:
-                task_file.unlink()
-            
-            return True
-    
-    return False
-
-
 if __name__ == "__main__":
-    # タスクをJSONに変換
-    tasks = convert_tasks_to_json()
-    print(f"Converted {len(tasks)} tasks to JSON format")
+    tasks = convert_tasks_to_current_sprint_json()
+    print(f"Generated tasks/current_sprint.json with {len(tasks)} tasks")
 

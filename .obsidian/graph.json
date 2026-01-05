@@ -1,0 +1,58 @@
+{
+  "collapse-filter": false,
+  "search": "path:knowledge/ -path:archive/  -file:_guide",
+  "showTags": true,
+  "showAttachments": true,
+  "hideUnresolved": true,
+  "showOrphans": true,
+  "collapse-color-groups": true,
+  "colorGroups": [
+    {
+      "query": "[\"type\":  reference",
+      "color": {
+        "a": 1,
+        "rgb": 14048348
+      }
+    },
+    {
+      "query": "[\"type\": structure",
+      "color": {
+        "a": 1,
+        "rgb": 13666597
+      }
+    },
+    {
+      "query": "[\"type\": permanent",
+      "color": {
+        "a": 1,
+        "rgb": 6053078
+      }
+    },
+    {
+      "query": "[\"type\": project",
+      "color": {
+        "a": 1,
+        "rgb": 13162076
+      }
+    },
+    {
+      "query": "[\"type\": task",
+      "color": {
+        "a": 1,
+        "rgb": 1085940
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": false,
+  "textFadeMultiplier": 0.7,
+  "nodeSizeMultiplier": 2.26508382161458,
+  "lineSizeMultiplier": 4.03060709635417,
+  "collapse-forces": false,
+  "centerStrength": 0.226643880208333,
+  "repelStrength": 12.6546223958333,
+  "linkStrength": 1,
+  "linkDistance": 352,
+  "scale": 0.35683479750045954,
+  "close": true
+}
